@@ -47,7 +47,7 @@ def get_timestamp(interaction, command_name):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print(f"Running on: {platform.system()} {platform.release()} ({platform.machine()})")
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v.0.0.5"))
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.0.6"))
     await bot.tree.sync()  # Sync the commands with Discord'''
 
 for user_id in balances.keys():
@@ -172,6 +172,8 @@ async def modify(interaction: discord.Interaction, user: discord.User, amount: i
     embed.title = "Balance Modified!"
     embed.description = f"{amount} 🍋 lemons have been {'added to' if amount > 0 else 'subtracted from'} {user.mention}'s balance.{get_timestamp(interaction, 'modify')}"
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | modify")
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="bet", description="Bet lemons on the spin of the wheel!")
@@ -187,13 +189,13 @@ async def bet(interaction: discord.Interaction, amount: int):
         await interaction.response.send_message("You don't have enough lemons to place that bet.", ephemeral=True)
         return
     outcomes = [
-        (0, "You lost all the lemons you bet."),
-        (round(1.25 * amount), "You gained 125% of your betting!"),
-        (round(1.3 * amount), "You gained 130% of your betting!"),
-        (round(100 * amount), "Jackpot! You gained 1000% of your betting!"),
-        (round(1000 * amount), "MEGA JACKPOT! You gained 99000% of your betting!")
+                (0, "You lost all the lemons you bet."),
+        (round(1.3 * amount), "You gained 130% of your bet!"),
+        (round(2.0 * amount), "You gained 200% of your bet!"),
+        (round(100 * amount), "Jackpot! You gained 1000% of your bet!"),
+        (round(1000 * amount), "MEGA JACKPOT! You gained 99000% of your bet!")
     ]
-    probabilities = [50, 25, 24, 0.9, 0.1]
+    probabilities = [50, 30, 19, 0.9, 0.1]
     spin_result = random.choices(outcomes, weights=probabilities, k=1)[0]
     lemons_won = spin_result[0]
     message = spin_result[1]
@@ -354,14 +356,10 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     embed.title = "Donation Successful!"
     embed.description = f"{interaction.user.mention} donated {amount} 🍋 lemons to {user.mention}!"
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | donate")
     await interaction.response.send_message(embed=embed)
 
-    # Optionally, notify the recipient
-    recipient_embed = discord.Embed(color=0xf2ed58)
-    recipient_embed.title = "You've Received a Donation!"
-    recipient_embed.description = f"{interaction.user.mention} donated {amount} 🍋 lemons to you!"
-    recipient_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
-    await user.send(embed=recipient_embed)
 
 
 ##########################################################
@@ -372,4 +370,4 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
 # load_dotenv('/Users/jamespark/JetBrainsFleet/LEMONBOT/.env')
 # bot.run(os.getenv('DISCORD_TOKEN'))
 
-bot.run("TOKEN GOES HERE")
+bot.run("INSERT TOKEN HERE")
