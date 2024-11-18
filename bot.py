@@ -159,22 +159,25 @@ from datetime import datetime
 
 @bot.tree.command(name="modify", description="Modify a user's balance by adding or subtracting lemons.")
 async def modify(interaction: discord.Interaction, user: discord.User, amount: int):
-    if discord.utils.get(interaction.user.roles, name="Banker") is None:
-        await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
-        return
-    user_id = str(user.id)
-    if user_id not in balances:
-        balances[user_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
-    new_balance = balances[user_id]["balance"] + amount
-    balances[user_id]["balance"] = max(new_balance, 0)
-    save_balances()
-    embed = discord.Embed(color=0xf2ed58)
-    embed.title = "Balance Modified!"
-    embed.description = f"{amount} 🍋 lemons have been {'added to' if amount > 0 else 'subtracted from'} {user.mention}'s balance.{get_timestamp(interaction, 'modify')}"
-    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
-    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
-    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | modify")
-    await interaction.response.send_message(embed=embed)
+    try:
+        if discord.utils.get(interaction.user.roles, name="Banker") is None:
+            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+            return
+        user_id = str(user.id)
+        if user_id not in balances:
+            balances[user_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
+        new_balance = balances[user_id]["balance"] + amount
+        balances[user_id]["balance"] = max(new_balance, 0)
+        save_balances()
+        embed = discord.Embed(color=0xf2ed58)
+        embed.title = "Balance Modified!"
+        embed.description = f"{amount} 🍋 lemons have been {'added to' if amount > 0 else 'subtracted from'} {user.mention}'s balance.{get_timestamp(interaction, 'modify')}"
+        embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+        embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | modify")
+        await interaction.response.send_message(embed=embed)
+    except discord.errors.NotFound as e:
+        print(f"Error: {e}")
+        await interaction.response.send_message("There was an issue processing your request. Please try again later.", ephemeral=True)
 
 @bot.tree.command(name="bet", description="Bet lemons on the spin of the wheel!")
 async def bet(interaction: discord.Interaction, amount: int):
@@ -370,4 +373,4 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
 # load_dotenv('/Users/jamespark/JetBrainsFleet/LEMONBOT/.env')
 # bot.run(os.getenv('DISCORD_TOKEN'))
 
-bot.run("INSERT TOKEN HERE")
+bot.run("TOKEN HERE")
