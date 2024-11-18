@@ -324,6 +324,46 @@ async def pickpocket_error(interaction: discord.Interaction, error):
         embed.description = f"You need to wait {round(error.retry_after)} seconds before using this command again."
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@bot.tree.command(name="donate", description="Donate lemons to another user.")
+async def donate(interaction: discord.Interaction, user: discord.User, amount: int):
+    donor_id = str(interaction.user.id)
+    recipient_id = str(user.id)
+
+    if donor_id not in balances:
+        balances[donor_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
+
+    if recipient_id not in balances:
+        balances[recipient_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
+
+    donor_balance = balances[donor_id]["balance"]
+
+    # Check if the donor has enough lemons
+    if amount <= 0:
+        await interaction.response.send_message("You need to donate a positive amount of lemons.", ephemeral=True)
+        return
+    elif amount > donor_balance:
+        await interaction.response.send_message("You don't have enough lemons to donate.", ephemeral=True)
+        return
+
+    # Perform the donation
+    balances[donor_id]["balance"] -= amount
+    balances[recipient_id]["balance"] += amount
+    save_balances()
+
+    embed = discord.Embed(color=0xf2ed58)
+    embed.title = "Donation Successful!"
+    embed.description = f"{interaction.user.mention} donated {amount} 🍋 lemons to {user.mention}!"
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    await interaction.response.send_message(embed=embed)
+
+    # Optionally, notify the recipient
+    recipient_embed = discord.Embed(color=0xf2ed58)
+    recipient_embed.title = "You've Received a Donation!"
+    recipient_embed.description = f"{interaction.user.mention} donated {amount} 🍋 lemons to you!"
+    recipient_embed.set_author(name=user.name, icon_url=user.display_avatar.url)
+    await user.send(embed=recipient_embed)
+
+
 ##########################################################
 
 # embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
@@ -332,4 +372,4 @@ async def pickpocket_error(interaction: discord.Interaction, error):
 # load_dotenv('/Users/jamespark/JetBrainsFleet/LEMONBOT/.env')
 # bot.run(os.getenv('DISCORD_TOKEN'))
 
-bot.run("ENTER TOKEN HERE")
+bot.run("TOKEN GOES HERE")
