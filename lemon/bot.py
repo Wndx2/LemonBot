@@ -429,10 +429,7 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | donate")
     await interaction.response.send_message(embed=embed)
 
-
-
-
-@bot.tree.command(name="work", description="Work to gain 30 lemons every minute.")
+@bot.tree.command(name="work", description="Work to gain 50 lemons every 5 minutes.")
 async def work(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     current_time = datetime.now()
@@ -457,7 +454,7 @@ async def work(interaction: discord.Interaction):
 
     if last_worked is None or (current_time - datetime.fromisoformat(last_worked)) >= timedelta(minutes=1):
         # User can work again, reward them with 30 lemons
-        earned_lemons = 30
+        earned_lemons = 50
         balances[user_id]["balance"] += earned_lemons
         balances[user_id]["last_worked"] = current_time.isoformat()  # Update the last worked time
         save_balances()
@@ -467,7 +464,7 @@ async def work(interaction: discord.Interaction):
         embed.description = f"{interaction.user.mention}, you have earned {earned_lemons} 🍋 lemons by saving money instead of spending it on Genshin Impact!\nYour new balance: 🍋 {balances[user_id]['balance']}"
     else:
         # User has to wait for the cooldown to end
-        time_left = timedelta(minutes=0.5) - (current_time - datetime.fromisoformat(last_worked))
+        time_left = timedelta(minutes=5) - (current_time - datetime.fromisoformat(last_worked))
         embed = discord.Embed(color=0xf25858)
         embed.title = "Cooldown Active"
         embed.description = f"You can work again in {time_left.seconds // 60} minute(s) and {(time_left.seconds % 60)} second(s)."
