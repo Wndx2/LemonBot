@@ -339,14 +339,20 @@ async def pickpocket(interaction: discord.Interaction, user: discord.User):
     if user.id == interaction.user.id:
         await interaction.response.send_message("You cannot pickpocket yourself!", ephemeral=True)
         return
-            # MAKES IT SO THAT YOU CANNOT STEAL FROM YOURSELF, AND DUPLICATE LEMONS.
+        # MAKES IT SO THAT YOU CANNOT STEAL FROM YOURSELF, AND DUPLICATE LEMONS.
 
     user_id = str(user.id)
+    actor_id = str(interaction.user.id)
+
+    if actor_id not in balances or balances[actor_id]["balance"] < 30:
+        await interaction.response.send_message("You need at least 30 🍋 lemons to attempt a pickpocket.", ephemeral=True)
+        return
+        # REQUIRES AT LEAST 30 LEMONS TO ATTEMPT PICKPOCKETING.
 
     if user_id not in balances:
         await interaction.response.send_message(f"{user.name} has no lemons to steal.", ephemeral=True)
         return
-            # CANNOT STEAL IF SOMEONE HAS NO LEMONS IN THEIR WALLET (BALANCE).
+        # CANNOT STEAL IF SOMEONE HAS NO LEMONS IN THEIR WALLET (BALANCE).
 
     user_balance = balances[user_id]["balance"]
 
@@ -356,24 +362,24 @@ async def pickpocket(interaction: discord.Interaction, user: discord.User):
         # CANNOT STEAL IF SOMEONE HAS NO LEMONS IN THEIR WALLET (BALANCE).
 
     success = random.randint(1, 10) == 1
-        # 10% CHANCE SUCCEEDING A PICKPOCKET. CAN EDIT DENOMINATOR & NUMERATOR TO EDIT THE PROBABILITIES
+        # 10% CHANCE SUCCEEDING A PICKPOCKET. CAN EDIT DENOMINATOR & NUMERATOR TO EDIT THE PROBABILITIES.
 
     if success:
         stolen_amount = random.randint(int(0.7 * user_balance), user_balance)
             # STEALS 70% ~ 100% OF SOMEONE'S LEMONS.
         balances[user_id]["balance"] -= stolen_amount
-        balances[str(interaction.user.id)]["balance"] += stolen_amount
+        balances[actor_id]["balance"] += stolen_amount
         save_balances()
         embed = discord.Embed(color=0xf2ed58)
         embed.title = "Pickpocket Success!"
         embed.description = f"{interaction.user.mention} stole {stolen_amount} 🍋 lemons from {user.mention}!"
     else:
-        if balances[str(interaction.user.id)]["balance"] <= 0:
+        if balances[actor_id]["balance"] <= 0:
             await interaction.response.send_message("You have no lemons to lose!", ephemeral=True)
             return
-        lost_amount = random.randint(int(0.5 * balances[str(interaction.user.id)]["balance"]), int(0.8 * balances[str(interaction.user.id)]["balance"]))
+        lost_amount = random.randint(int(0.5 * balances[actor_id]["balance"]), int(0.8 * balances[actor_id]["balance"]))
             # IF FAILED TO PICKPOCKET, THE USER WILL LOSE 50%~80% OF THEIR OWN LEMONS.
-        balances[str(interaction.user.id)]["balance"] -= lost_amount
+        balances[actor_id]["balance"] -= lost_amount
         save_balances()
         embed = discord.Embed(color=0xf25858)
         embed.title = "Pickpocket Failed!"
