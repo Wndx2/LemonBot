@@ -1,3 +1,16 @@
+"""THE OPEN SOURCE CODE FOR THE LEMON CURRENCY BOT."""
+
+"""
+LAST UPDATED: 19TH OF NOVEMBER 2024.
+IF YOU WOULD LIKE TO SUGGEST ANY FEATURES, PLEASE USE THE OFFICIAL DISCORD SERVER.
+IF YOU WOULD LIKE TO 'MAKE' A FEATURE, PLEASE MAKE A PULL REQUEST.
+    ㄴ PLEASE REFER TO THE 'CONTRIBUTING' FILE BEFORE MAKING A PR.
+IF YOU HAVE FOUND A CRUCIAL BUG THAT COULD RUIN THE (VIRTUAL) ECONOMY, PLEASE SHOOT ME A DM, OR EMAIL US.
+
+ANY QUESTIONS? PLEASE DM, EMAIL US, OR USE THE OFFICIAL DISCORD SERVER.
+"""
+
+
 import discord
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta
@@ -132,7 +145,7 @@ async def beg(interaction: discord.Interaction):
     else:
         embed = discord.Embed(color=0xf25858)
         embed.title = "No Lemons!"
-        embed.description = f"{interaction.user.mention}, no u stinky."
+        embed.description = f"Person: No, {interaction.user.mention}. You'll just use it to buy Genshin characters."
             # YOU CAN EDIT THE 'NO U STINKY' TO CHANGE THE BEG FAIL MESSAGE.
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | beg")
@@ -181,9 +194,11 @@ async def harvest(interaction: discord.Interaction):
 async def modify(interaction: discord.Interaction, user: discord.User, amount: int):
     try:
         banker_role_id = 1302118831342354473
+            # REQUIRES THE ROLE ID OF THE BANKER ROLE IN THE OFFICIAL LEMON SERVER.
         if not any(role.id == banker_role_id for role in interaction.user.roles):
-            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+            await interaction.response.send_message("Ni meiyou permissions.", ephemeral=True)
             return
+                # YOU CANNOT RUN THIS COMMAND IF YOU DO NOT HAVE THE RIGHT PERMISSIONS.
 
         user_id = str(user.id)
         if user_id not in balances:
@@ -194,6 +209,7 @@ async def modify(interaction: discord.Interaction, user: discord.User, amount: i
         embed = discord.Embed(color=0xf2ed58)
         embed.title = "Balance Modified!"
         embed.description = f"{amount} 🍋 lemons have been {'added to' if amount > 0 else 'subtracted from'} {user.mention}'s balance.{get_timestamp(interaction, 'modify')}"
+            # "ADDED" IF IT IS A POSITIVE INTEGER, "SUBTRACTED" IF IT IS A NEGATIVE INTEGER.
         embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
         embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | modify")
         await interaction.response.send_message(embed=embed)
@@ -209,10 +225,13 @@ async def bet(interaction: discord.Interaction, amount: int):
     current_balance = balances[user_id]["balance"]
     if amount <= 0:
         await interaction.response.send_message("You need to bet a positive amount of lemons.", ephemeral=True)
+            # BLOCKS NEGATIVE VALUE INPUTS.
         return
     elif amount > current_balance:
         await interaction.response.send_message("You don't have enough lemons to place that bet.", ephemeral=True)
         return
+            # MAKES IT SO THAT YOU CANNOT BET MORE THAN YOU HAVEI IN YOUR BALANCE.
+
     outcomes = [
                 (0, "You lost all the lemons you bet."),
         (round(1.3 * amount), "You gained 130% of your bet!"),
@@ -221,6 +240,13 @@ async def bet(interaction: discord.Interaction, amount: int):
         (round(1000 * amount), "MEGA JACKPOT! You gained 99000% of your bet!")
     ]
     probabilities = [50, 30, 19, 0.9, 0.1]
+
+    # 50% CHANCE YOU LOSE EVERYTHING,
+    # 30% CHANCE YOU GAIN 130% OF YOUR BET
+    # 19% CHANCE YOU GAIN 200% OF YOUR BET (WHICH IS DOUBLE)
+    # 0.9% CHANCE YOU GAIN 1000% OF YOUR BET
+    # 0.1% CHANCE YOU GAIN 99000% OF YOUR BET
+
     spin_result = random.choices(outcomes, weights=probabilities, k=1)[0]
     lemons_won = spin_result[0]
     message = spin_result[1]
@@ -240,12 +266,15 @@ async def leaderboard(interaction: discord.Interaction):
     embed = discord.Embed(title="Leaderboard", color=0xf2ed58)
 
     for idx, (user_id, data) in enumerate(sorted_users):
+        # SORTS THE USERS TOP TO BOTTOM IN TERMS OF BALANCE
         try:
             member = await interaction.guild.fetch_member(int(user_id))
             embed.add_field(name=f"{idx + 1}. {member.name} (ID: {member.id})", value=f"🍋 {data['balance']}", inline=False)
         except discord.NotFound:
             embed.add_field(name=f"{idx + 1}. Unknown User", value=f"🍋 {data['balance']}", inline=False)
 
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | ledaerboard")
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="deposit", description="Deposit lemons into the bank.")
@@ -272,6 +301,8 @@ async def deposit(interaction: discord.Interaction, amount: str):
     embed = discord.Embed(color=0xf2ed58)
     embed.title = "Deposit Successful"
     embed.description = f"{amount} 🍋 lemons have been deposited into your bank.\nNew Balance: 🍋 {balances[user_id]['balance']}\nBank Balance: 🍋 {balances[user_id]['bank']}"
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | deposit")
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="withdraw", description="Withdraw lemons from the bank.")
@@ -298,6 +329,8 @@ async def withdraw(interaction: discord.Interaction, amount: str):
     embed = discord.Embed(color=0xf2ed58)
     embed.title = "Withdrawal Successful"
     embed.description = f"{amount} 🍋 lemons have been withdrawn from your bank.\nNew Balance: 🍋 {balances[user_id]['balance']}\nBank Balance: 🍋 {balances[user_id]['bank']}"
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | withdraw")
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="pickpocket", description="Pickpocket lemons from another user.")
@@ -306,23 +339,28 @@ async def pickpocket(interaction: discord.Interaction, user: discord.User):
     if user.id == interaction.user.id:
         await interaction.response.send_message("You cannot pickpocket yourself!", ephemeral=True)
         return
+            # MAKES IT SO THAT YOU CANNOT STEAL FROM YOURSELF, AND DUPLICATE LEMONS.
 
     user_id = str(user.id)
 
     if user_id not in balances:
         await interaction.response.send_message(f"{user.name} has no lemons to steal.", ephemeral=True)
         return
+            # CANNOT STEAL IF SOMEONE HAS NO LEMONS IN THEIR WALLET (BALANCE).
 
     user_balance = balances[user_id]["balance"]
 
     if user_balance <= 0:
         await interaction.response.send_message(f"{user.name} has no lemons to steal.", ephemeral=True)
         return
+        # CANNOT STEAL IF SOMEONE HAS NO LEMONS IN THEIR WALLET (BALANCE).
 
     success = random.randint(1, 10) == 1
+        # 10% CHANCE SUCCEEDING A PICKPOCKET. CAN EDIT DENOMINATOR & NUMERATOR TO EDIT THE PROBABILITIES
 
     if success:
         stolen_amount = random.randint(int(0.7 * user_balance), user_balance)
+            # STEALS 70% ~ 100% OF SOMEONE'S LEMONS.
         balances[user_id]["balance"] -= stolen_amount
         balances[str(interaction.user.id)]["balance"] += stolen_amount
         save_balances()
@@ -334,6 +372,7 @@ async def pickpocket(interaction: discord.Interaction, user: discord.User):
             await interaction.response.send_message("You have no lemons to lose!", ephemeral=True)
             return
         lost_amount = random.randint(int(0.5 * balances[str(interaction.user.id)]["balance"]), int(0.8 * balances[str(interaction.user.id)]["balance"]))
+            # IF FAILED TO PICKPOCKET, THE USER WILL LOSE 50%~80% OF THEIR OWN LEMONS.
         balances[str(interaction.user.id)]["balance"] -= lost_amount
         save_balances()
         embed = discord.Embed(color=0xf25858)
@@ -341,6 +380,7 @@ async def pickpocket(interaction: discord.Interaction, user: discord.User):
         embed.description = f"{interaction.user.mention} was caught and lost {lost_amount} 🍋 lemons!"
 
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | pickpocket")
     await interaction.response.send_message(embed=embed)
 
 @pickpocket.error
@@ -350,6 +390,7 @@ async def pickpocket_error(interaction: discord.Interaction, error):
         embed.title = "Cooldown Active"
         embed.description = f"You need to wait {round(error.retry_after)} seconds before using this command again."
         await interaction.response.send_message(embed=embed, ephemeral=True)
+            # THIS REQUIRES A FIX; NO COOLDOWNS ARE IN PLACE.
 
 @bot.tree.command(name="donate", description="Donate lemons to another user.")
 async def donate(interaction: discord.Interaction, user: discord.User, amount: int):
@@ -364,7 +405,6 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
 
     donor_balance = balances[donor_id]["balance"]
 
-    # Check if the donor has enough lemons
     if amount <= 0:
         await interaction.response.send_message("You need to donate a positive amount of lemons.", ephemeral=True)
         return
@@ -372,7 +412,6 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
         await interaction.response.send_message("You don't have enough lemons to donate.", ephemeral=True)
         return
 
-    # Perform the donation
     balances[donor_id]["balance"] -= amount
     balances[recipient_id]["balance"] += amount
     save_balances()
@@ -389,9 +428,6 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
 
 # embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
 # embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
-
-# load_dotenv('/Users/jamespark/JetBrainsFleet/LEMONBOT/.env')
-# bot.run(os.getenv('DISCORD_TOKEN'))
 
 bot.run("TOKEN")
 # CHANGE TOKEN BEFORE RUNNING/UPLOADING CODE TO REPOSITORY.
