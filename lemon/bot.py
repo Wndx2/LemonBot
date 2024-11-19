@@ -65,7 +65,8 @@ def get_timestamp(interaction, command_name):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print(f"Running on: {platform.system()} {platform.release()} ({platform.machine()})")
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.0.6")) # SETS THE STATUS MESSAGE FOR THE BOT.
+    print("You are running v0.1.7")
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.1.7")) # SETS THE STATUS MESSAGE FOR THE BOT.
     await bot.tree.sync()
 # PRINTS THE LOGIN MESSAGE TO THE CONSOLE BEFORE ACTIVATING THE BOT.
 
