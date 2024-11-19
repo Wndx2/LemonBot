@@ -1,7 +1,7 @@
 """THE OPEN SOURCE CODE FOR THE LEMON CURRENCY BOT."""
 
 """
-LAST UPDATED: 20TH OF NOVEMBER 2024, 02:21 NZST.
+LAST UPDATED: 19TH OF NOVEMBER 2024, 02:30
 IF YOU WOULD LIKE TO SUGGEST ANY FEATURES, PLEASE USE THE OFFICIAL DISCORD SERVER.
 IF YOU WOULD LIKE TO 'MAKE' A FEATURE, PLEASE MAKE A PULL REQUEST.
     ㄴ PLEASE REFER TO THE 'CONTRIBUTING' FILE BEFORE MAKING A PR.
@@ -416,6 +416,7 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     elif amount > donor_balance:
         await interaction.response.send_message("You don't have enough lemons to donate.", ephemeral=True)
         return
+            # CANNOT DONATE MORE THAN YOU HAVE.
 
     balances[donor_id]["balance"] -= amount
     balances[recipient_id]["balance"] += amount
@@ -429,46 +430,51 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | donate")
     await interaction.response.send_message(embed=embed)
 
+
+
+
 @bot.tree.command(name="work", description="Work to gain 50 lemons every 5 minutes.")
 async def work(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     current_time = datetime.now()
 
-    # Initialize user data if it doesn't exist
+
     if user_id not in balances:
         balances[user_id] = {
             "balance": 0,
-            "last_worked": None,  # Initialize 'last_worked' to None if it's a new user
+            "last_worked": None,
+                # INIT 'LAST_WORKED' TO NONE (0) IF IT'S A NEW USER.
             "consecutive_days": 0,
             "bank": 0
         }
 
-    # Debugging output to check balances
     print(f"Balances for {user_id}: {balances[user_id]}")
 
-    # Ensure 'last_worked' is present before proceeding
     if 'last_worked' not in balances[user_id]:
-        balances[user_id]["last_worked"] = None  # Initialize 'last_worked' if missing
+        balances[user_id]["last_worked"] = None
 
     last_worked = balances[user_id]["last_worked"]
 
     if last_worked is None or (current_time - datetime.fromisoformat(last_worked)) >= timedelta(minutes=1):
-        # User can work again, reward them with 30 lemons
+        # USERS CAN WORK AGAIN FOR 50 LEMONS EVERY 5 MINUTES.
         earned_lemons = 50
         balances[user_id]["balance"] += earned_lemons
-        balances[user_id]["last_worked"] = current_time.isoformat()  # Update the last worked time
+        balances[user_id]["last_worked"] = current_time.isoformat()  # LAST_WORKED UPDATE HERE.
         save_balances()
 
         embed = discord.Embed(color=0xf2ed58)
         embed.title = "Work Successful!"
         embed.description = f"{interaction.user.mention}, you have earned {earned_lemons} 🍋 lemons by saving money instead of spending it on Genshin Impact!\nYour new balance: 🍋 {balances[user_id]['balance']}"
     else:
-        # User has to wait for the cooldown to end
+        # COOLDOWN OF 5 MINUTES
         time_left = timedelta(minutes=5) - (current_time - datetime.fromisoformat(last_worked))
+            # EDIT THE NUMBER '5' ABOVE TO CHANGE COOLDOWN.
+            # NOTE: THE COOLDOWN IS IN MINUTES; EG: 30 SECONDS = 0.5 MINUTES.
         embed = discord.Embed(color=0xf25858)
         embed.title = "Cooldown Active"
         embed.description = f"You can work again in {time_left.seconds // 60} minute(s) and {(time_left.seconds % 60)} second(s)."
-
+            # SETS A COOLDOWN MESSAGE THAT DISPLAYS THE TIME LEFT.
+            # IT UPDATES EVERY TIME YOU USE THE COMMAND.
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | work")
     await interaction.response.send_message(embed=embed)
@@ -477,8 +483,12 @@ async def work(interaction: discord.Interaction):
 
 ##########################################################
 
-# embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
-# embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
+'''
+embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
+'''
+    # FOR QUICK COPY PASTING. IT ADDS THE PROFILE PICTURE DISPLAY AT THE TOP OF THE EMBED,
+    # AND DISPLAYS THE NAME, DATE, AND COMMAND USED AT THE BOTTOM.
 
 bot.run('TOKEN')
 # CHANGE TOKEN BEFORE RUNNING/UPLOADING CODE TO REPOSITORY.
