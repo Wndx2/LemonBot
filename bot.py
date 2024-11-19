@@ -10,12 +10,14 @@ from discord.ui import Button, View
 import platform
 
 intents = discord.Intents.default()
-intents.members = True  # Ensure this line is included to enable member intents
+intents.members = True # ENSURE THIS IS SET TO 'TRUE' TO GRANT THE BOT MEMBER INTENTS.
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
+# THE ! PREFIX DOES NOT WORK. THE AI TOLD ME TO DO IT, SO..
 def load_jobs():
     with open("jobs.json", "r") as f:
         return json.load(f)
+# THE JOBS COMMAND IS ARCHIVED AS OF NOW.
 
 def get_user_balance(user_id):
     return
@@ -28,32 +30,37 @@ def load_balances():
         try:
             with open("balances.json", "r") as f:
                 return json.load(f)
+            # LOADS THE BALANCE.JSON FILE, IF IT DOESN'T EXIST, OR ERROR, IT MAKES A NEW ONE, OR PRINTS AN ERROR OUTPUT.
         except json.JSONDecodeError:
             print("Error decoding JSON from balances.json")
             return {}
     return {}
 
 balances = load_balances() or {}
+# LOAD_BALANCES() LOADS THE BALANCE FROM THE BALANCES.JSON FILE.
 
 def save_balances():
     with open("balances.json", "w") as f:
         json.dump(balances, f)
+# SAVE_BALANCES() SAVES THE CURRENT BALANCE TO THE BALANCES.JSON FILE.
+# WITHOUT THIS, THE PROGRAM WILL NOT SAVE YOUR BALANCE TO THE JSON FILE.
 
 def get_timestamp(interaction, command_name):
-    # Example: generate a timestamp with the current time
     return f"\n{command_name} executed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+# GETS TIMESTAMP OF THE USER.
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print(f"Running on: {platform.system()} {platform.release()} ({platform.machine()})")
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.0.6"))
-    await bot.tree.sync()  # Sync the commands with Discord'''
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.0.6")) # SETS THE STATUS MESSAGE FOR THE BOT.
+    await bot.tree.sync()
+# PRINTS THE LOGIN MESSAGE TO THE CONSOLE BEFORE ACTIVATING THE BOT.
 
 for user_id in balances.keys():
     if 'bank' not in balances[user_id]:
         balances[user_id]['bank'] = 0
-# Ensures that each user in the balances have a 'bank' entry. If not, init to 0.
+# THIS LOADS THE USER'S BALANCE FROM THE BALANCES.JSON FILE. IF USER DOESN'T EXIST IN THE FILE, RETURNS TO 0 LEMONS.
 
 def create_jobs_file():
     jobs = {
@@ -83,6 +90,8 @@ def create_jobs_file():
         json.dump(jobs, f, indent=4)
 
 create_jobs_file()
+# THIS WILL CREATE A JOBS.JSON FILE, EVEN THOUGH THIS WILL NOT BE USED ANYWHERE.
+# AGAIN, THIS COMMAND IS ARCHIVED AS OF NOW, AND WILL BE UPDATED LATER ON.
 
 @bot.tree.command(name="balance", description="Check your or another user's balance.")
 async def balance(interaction: discord.Interaction, user: discord.User = None):
@@ -91,13 +100,17 @@ async def balance(interaction: discord.Interaction, user: discord.User = None):
     user_id = str(user.id)
     if user_id not in balances:
         balances[user_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
+        # THIS MAKES THE USER INPUT OPTIONAL
+        # IF YOU WANT TO SEE OTHER USER'S BALANCE, THE SECOND INPUT IS NECESSARY.
     balance = balances[user_id]["balance"]
     bank_balance = balances[user_id]["bank"]
     vitamins_available = balance // 10000
+        # IF YOU ARE WONDERING WHAT THIS IS, THIS IS ONLY FOR MY IRL FRIENDS.
     embed = discord.Embed(color=0xf2ed58)
     embed.title = f"{user.name}'s Balance"
     embed.description = f"{interaction.user.mention}\n🍋 Wallet: {balance}\n🏦 Bank: {bank_balance}\n\nAvailable Vitamins: {vitamins_available}"
-    embed.set_author(name=user.name, icon_url=user.display_avatar.url)  # Change here to use the correct user
+        # THIS DISPLAYS THE USER'S WALLET BALANCE, AND THEIR BANK BALANCE, AFTER LOADING IT FROM THE BALANCES.JSON FILE.
+    embed.set_author(name=user.name, icon_url=user.display_avatar.url)
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | balance")
     await interaction.response.send_message(embed=embed)
 
@@ -105,9 +118,12 @@ async def balance(interaction: discord.Interaction, user: discord.User = None):
 async def beg(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     randomlemon = random.randint(1, 15)
+    # DECLARED 'RANDOMLEMON' AS A VARIABLE HOLDING THE RANDOM OUTPUT OF THE /BEG LEMON COMMAND.
     if user_id not in balances:
         balances[user_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
     if random.randint(1, 3) == 1:
+        # THERE IS A 33.33% CHANCE THAT YOU WILL SUCCEED A BEG.
+        # CHANGE THE DENOMINATOR (3) TO EDIT PROBABILITIES.
         balances[user_id]["balance"] += randomlemon
         save_balances()
         embed = discord.Embed(color=0xf2ed58)
@@ -117,11 +133,13 @@ async def beg(interaction: discord.Interaction):
         embed = discord.Embed(color=0xf25858)
         embed.title = "No Lemons!"
         embed.description = f"{interaction.user.mention}, no u stinky."
+            # YOU CAN EDIT THE 'NO U STINKY' TO CHANGE THE BEG FAIL MESSAGE.
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | beg")
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="harvest", description="Harvest your lemons.")
+    # USED TO BE CALLED /DAILY.
 async def harvest(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     current_time = datetime.now()
@@ -133,12 +151,14 @@ async def harvest(interaction: discord.Interaction):
         if last_claimed is None:
             earned_lemons = 10
             consecutive_days = 1
+                # RETURNS THE CONSECUTIVE_DAYS VARIABLE TO 1, IF STREAK LOST, OR DOESN'T EXIST.
         else:
             if (current_time - datetime.fromisoformat(last_claimed)) < timedelta(days=1):
                 consecutive_days = 1
             else:
                 consecutive_days += 1
             earned_lemons = 10 + (consecutive_days - 1) * 2
+                # YOU WILL GET +2 LEMONS PER DAY, WHEN YOU USE /HARVEST.
         balances[user_id]["balance"] += earned_lemons
         balances[user_id]["last_claimed"] = current_time.isoformat()
         balances[user_id]["consecutive_days"] = consecutive_days
@@ -149,20 +169,22 @@ async def harvest(interaction: discord.Interaction):
     else:
         embed = discord.Embed(color=0xf25858)
         embed.title = "Already Harvested"
+            # SAYS "NUH UH" WHEN IT HASN'T BEEN 24 HOURS. SINCE THE LAST TIME HARVESTED
         time_left = timedelta(days=1) - (current_time - datetime.fromisoformat(last_claimed))
         embed.description = f"You can harvest again in {time_left.days} day(s) and {time_left.seconds // 3600} hour(s). Your current streak: {consecutive_days} day(s).{get_timestamp(interaction, 'harvest')}"
+            # YOU CAN MODIFY THE 3600 ABOVE, TO CHANGE THE DAILY COLLECT TIME.
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
-    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | modify")
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | harvest")
     await interaction.response.send_message(embed=embed)
-
-from datetime import datetime
 
 @bot.tree.command(name="modify", description="Modify a user's balance by adding or subtracting lemons.")
 async def modify(interaction: discord.Interaction, user: discord.User, amount: int):
     try:
-        if discord.utils.get(interaction.user.roles, name="Banker") is None:
+        banker_role_id = 1302118831342354473
+        if not any(role.id == banker_role_id for role in interaction.user.roles):
             await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
             return
+
         user_id = str(user.id)
         if user_id not in balances:
             balances[user_id] = {"balance": 0, "last_claimed": None, "consecutive_days": 0, "bank": 0}
@@ -363,8 +385,6 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | donate")
     await interaction.response.send_message(embed=embed)
 
-
-
 ##########################################################
 
 # embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
@@ -373,4 +393,5 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
 # load_dotenv('/Users/jamespark/JetBrainsFleet/LEMONBOT/.env')
 # bot.run(os.getenv('DISCORD_TOKEN'))
 
-bot.run("TOKEN HERE")
+bot.run("TOKEN")
+# CHANGE TOKEN BEFORE RUNNING/UPLOADING CODE TO REPOSITORY.
