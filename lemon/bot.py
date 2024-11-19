@@ -1,7 +1,7 @@
 """THE OPEN SOURCE CODE FOR THE LEMON CURRENCY BOT."""
 
 """
-LAST UPDATED: 19TH OF NOVEMBER 2024.
+LAST UPDATED: 20TH OF NOVEMBER 2024, 02:21 NZST.
 IF YOU WOULD LIKE TO SUGGEST ANY FEATURES, PLEASE USE THE OFFICIAL DISCORD SERVER.
 IF YOU WOULD LIKE TO 'MAKE' A FEATURE, PLEASE MAKE A PULL REQUEST.
     ㄴ PLEASE REFER TO THE 'CONTRIBUTING' FILE BEFORE MAKING A PR.
@@ -19,14 +19,13 @@ import os
 import random
 from threading import Thread
 from dotenv import load_dotenv
-from discord.ui import Button, View
 import platform
 
 intents = discord.Intents.default()
 intents.members = True # ENSURE THIS IS SET TO 'TRUE' TO GRANT THE BOT MEMBER INTENTS.
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
-# THE ! PREFIX DOES NOT WORK. THE AI TOLD ME TO DO IT, SO..
+
 def load_jobs():
     with open("jobs.json", "r") as f:
         return json.load(f)
@@ -430,10 +429,59 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | donate")
     await interaction.response.send_message(embed=embed)
 
+
+
+
+@bot.tree.command(name="work", description="Work to gain 30 lemons every minute.")
+async def work(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    current_time = datetime.now()
+
+    # Initialize user data if it doesn't exist
+    if user_id not in balances:
+        balances[user_id] = {
+            "balance": 0,
+            "last_worked": None,  # Initialize 'last_worked' to None if it's a new user
+            "consecutive_days": 0,
+            "bank": 0
+        }
+
+    # Debugging output to check balances
+    print(f"Balances for {user_id}: {balances[user_id]}")
+
+    # Ensure 'last_worked' is present before proceeding
+    if 'last_worked' not in balances[user_id]:
+        balances[user_id]["last_worked"] = None  # Initialize 'last_worked' if missing
+
+    last_worked = balances[user_id]["last_worked"]
+
+    if last_worked is None or (current_time - datetime.fromisoformat(last_worked)) >= timedelta(minutes=1):
+        # User can work again, reward them with 30 lemons
+        earned_lemons = 30
+        balances[user_id]["balance"] += earned_lemons
+        balances[user_id]["last_worked"] = current_time.isoformat()  # Update the last worked time
+        save_balances()
+
+        embed = discord.Embed(color=0xf2ed58)
+        embed.title = "Work Successful!"
+        embed.description = f"{interaction.user.mention}, you have earned {earned_lemons} 🍋 lemons by saving money instead of spending it on Genshin Impact!\nYour new balance: 🍋 {balances[user_id]['balance']}"
+    else:
+        # User has to wait for the cooldown to end
+        time_left = timedelta(minutes=0.5) - (current_time - datetime.fromisoformat(last_worked))
+        embed = discord.Embed(color=0xf25858)
+        embed.title = "Cooldown Active"
+        embed.description = f"You can work again in {time_left.seconds // 60} minute(s) and {(time_left.seconds % 60)} second(s)."
+
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | work")
+    await interaction.response.send_message(embed=embed)
+
+
+
 ##########################################################
 
 # embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
 # embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
 
-bot.run("TOKEN")
+bot.run('TOKEN')
 # CHANGE TOKEN BEFORE RUNNING/UPLOADING CODE TO REPOSITORY.
