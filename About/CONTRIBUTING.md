@@ -17,10 +17,11 @@ Welcome, and thank you for contributing to our project! To ensure smooth collabo
    - For large or significant changes, please discuss your plans with the developers before starting. DM, or email the developers.
 
 3. **Command Structure**
-   - Use the `@bot.tree.command` structure for implementing Discord bot commands.
+   - Use the `@bot.tree.command` structure to implement Discord bot commands.
    - You also MUST use
-   - embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
 embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
+
 at the end of every command you make.
 
 4. **Python Version**
@@ -29,6 +30,10 @@ at the end of every command you make.
 
 5. **Comments**
    - Add **#COMMENTs** to your code to make it easy for all contributors to understand. Clear and concise comments are essential for collaboration, so we don't have to ask you every single time. Please use ALL CAPITALS in all comments.
+
+6. **Variables**
+   - Please do not change any of the existing variables. It's alright to create new ones, with new commands, but it's not okay to change the already existing variables, and renaming them, etc.
+   - If you did create a new variable, please comment before submitting a PR.
 
 ---
 
