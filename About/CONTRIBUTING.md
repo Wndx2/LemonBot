@@ -21,12 +21,10 @@ Welcome, and thank you for contributing to our project! To ensure smooth collabo
    - You also MUST use
 embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
 embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
-
-at the end of every command you make.
+   at the end of every command you make.
 
 4. **Python Version**
    - Use **Python 3.12** exclusively. Do not use a lower or higher version to maintain compatibility.
-   - We are not planning to upgrade it to Python 3.13 until Python 3.14 comes out.
 
 5. **Comments**
    - Add **#COMMENTs** to your code to make it easy for all contributors to understand. Clear and concise comments are essential for collaboration, so we don't have to ask you every single time. Please use ALL CAPITALS in all comments.
