@@ -19,8 +19,10 @@ Welcome, and thank you for contributing to our project! To ensure smooth collabo
 3. **Command Structure**
    - Use the `@bot.tree.command` structure to implement Discord bot commands.
    - You also MUST use
-embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
-embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
+
+   embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+   embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
+
    at the end of every command you make.
 
 4. **Python Version**
