@@ -1,7 +1,7 @@
 """THE OPEN SOURCE CODE FOR THE LEMON CURRENCY BOT."""
 
 """
-LAST UPDATED: 19TH OF NOVEMBER 2024, 02:30
+LAST UPDATED: 22ND OF NOVEMBER 2024, 02:30
 IF YOU WOULD LIKE TO SUGGEST ANY FEATURES, PLEASE USE THE OFFICIAL DISCORD SERVER.
 IF YOU WOULD LIKE TO 'MAKE' A FEATURE, PLEASE MAKE A PULL REQUEST.
     ㄴ PLEASE REFER TO THE 'CONTRIBUTING' FILE BEFORE MAKING A PR.
@@ -9,7 +9,6 @@ IF YOU HAVE FOUND A CRUCIAL BUG THAT COULD RUIN THE (VIRTUAL) ECONOMY, PLEASE SH
 
 ANY QUESTIONS? PLEASE DM, EMAIL US, OR USE THE OFFICIAL DISCORD SERVER.
 """
-
 
 import discord
 from discord.ext import commands, tasks
@@ -66,9 +65,10 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
     print(f"Running on: {platform.system()} {platform.release()} ({platform.machine()})")
     print("You are running v0.1.7")
+        # NOT SYNCED WITH ANYTHING. MUST EDIT THIS BEFORE MAKING AN UPDATE.
     await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.1.7")) # SETS THE STATUS MESSAGE FOR THE BOT.
     await bot.tree.sync()
-# PRINTS THE LOGIN MESSAGE TO THE CONSOLE BEFORE ACTIVATING THE BOT.
+        # PRINTS THE LOGIN MESSAGE TO THE CONSOLE BEFORE ACTIVATING THE BOT.
 
 for user_id in balances.keys():
     if 'bank' not in balances[user_id]:
@@ -230,7 +230,7 @@ async def bet(interaction: discord.Interaction, amount: int):
     elif amount > current_balance:
         await interaction.response.send_message("You don't have enough lemons to place that bet.", ephemeral=True)
         return
-            # MAKES IT SO THAT YOU CANNOT BET MORE THAN YOU HAVEI IN YOUR BALANCE.
+            # MAKES IT SO THAT YOU CANNOT BET MORE THAN YOU HAVE IN YOUR BALANCE.
 
     outcomes = [
                 (0, "You lost all the lemons you bet."),
@@ -431,14 +431,10 @@ async def donate(interaction: discord.Interaction, user: discord.User, amount: i
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | donate")
     await interaction.response.send_message(embed=embed)
 
-
-
-
 @bot.tree.command(name="work", description="Work to gain 50 lemons every 5 minutes.")
 async def work(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     current_time = datetime.now()
-
 
     if user_id not in balances:
         balances[user_id] = {
@@ -459,6 +455,7 @@ async def work(interaction: discord.Interaction):
     if last_worked is None or (current_time - datetime.fromisoformat(last_worked)) >= timedelta(minutes=1):
         # USERS CAN WORK AGAIN FOR 50 LEMONS EVERY 5 MINUTES.
         earned_lemons = 50
+            # AMOUNT OF LEMONS GAINED PER /WORK.
         balances[user_id]["balance"] += earned_lemons
         balances[user_id]["last_worked"] = current_time.isoformat()  # LAST_WORKED UPDATE HERE.
         save_balances()
@@ -480,16 +477,17 @@ async def work(interaction: discord.Interaction):
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | work")
     await interaction.response.send_message(embed=embed)
 
-
-
 ##########################################################
 
 '''
 embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
 embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | COMMAND NAME")
 '''
-    # FOR QUICK COPY PASTING. IT ADDS THE PROFILE PICTURE DISPLAY AT THE TOP OF THE EMBED,
+    # FOR QUICK COPY PASTING. THIS ADDS THE PROFILE PICTURE DISPLAY AT THE TOP OF THE EMBED,
     # AND DISPLAYS THE NAME, DATE, AND COMMAND USED AT THE BOTTOM.
 
+
+##########################################################
+
 bot.run('TOKEN')
-# CHANGE TOKEN BEFORE RUNNING/UPLOADING CODE TO REPOSITORY.
+    # CHANGE TOKEN BEFORE UPDATING REPOSITORY.
