@@ -151,7 +151,7 @@ async def beg(interaction: discord.Interaction):
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | beg")
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="harvest", description="Harvest your lemons.")
+@bot.tree.command(name="harvest", description="Harvest your daily lemons.")
     # USED TO BE CALLED /DAILY.
 async def harvest(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
@@ -485,7 +485,6 @@ embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H
 '''
     # FOR QUICK COPY PASTING. THIS ADDS THE PROFILE PICTURE DISPLAY AT THE TOP OF THE EMBED,
     # AND DISPLAYS THE NAME, DATE, AND COMMAND USED AT THE BOTTOM.
-
 
 ##########################################################
 
