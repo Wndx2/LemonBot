@@ -1,11 +1,7 @@
 """THE OPEN SOURCE CODE FOR THE LEMON CURRENCY BOT."""
 
 """
-
-
-LAST UPDATED: 28TH OF NOVEMBER 2024, 16:33
-
-
+LAST UPDATED: 22ND OF NOVEMBER 2024, 02:30
 IF YOU WOULD LIKE TO SUGGEST ANY FEATURES, PLEASE USE THE OFFICIAL DISCORD SERVER.
 IF YOU WOULD LIKE TO 'MAKE' A FEATURE, PLEASE MAKE A PULL REQUEST.
     ㄴ PLEASE REFER TO THE 'CONTRIBUTING' FILE BEFORE MAKING A PR.
@@ -68,9 +64,9 @@ def get_timestamp(interaction, command_name):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print(f"Running on: {platform.system()} {platform.release()} ({platform.machine()})")
-    print("You are running v0.1.7")
+    print("You are running v1.1.7")
         # NOT SYNCED WITH ANYTHING. MUST EDIT THIS BEFORE MAKING AN UPDATE.
-    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v0.1.7")) # SETS THE STATUS MESSAGE FOR THE BOT.
+    await bot.change_presence(status=discord.Status.online, activity=discord.Activity(type=discord.ActivityType.watching, name="v1.1.7")) # SETS THE STATUS MESSAGE FOR THE BOT.
     await bot.tree.sync()
         # PRINTS THE LOGIN MESSAGE TO THE CONSOLE BEFORE ACTIVATING THE BOT.
 
@@ -480,6 +476,136 @@ async def work(interaction: discord.Interaction):
     embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
     embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | work")
     await interaction.response.send_message(embed=embed)
+
+##########################################################
+
+# (NAME: PRICE)
+ROLE_SHOP = {
+    "Lemon Nerd": 500,
+    "Lemon Farmer": 1000,
+    "Lemon Crusher": 2500,
+}
+
+class RoleShopMenu(discord.ui.View):
+    def __init__(self, guild: discord.Guild):
+        super().__init__(timeout=None)
+        self.add_item(RoleDropdown(guild))  # PASS THE GUILD
+
+class RoleDropdown(discord.ui.Select):
+    def __init__(self, guild: discord.Guild):
+        # FETCH ROLES FROM THE GUILD
+        options = [
+            discord.SelectOption(
+                label=role_name,
+                description=f"Costs {price} 🍋 lemons",
+                emoji="🍋"  # EMOJI FOR THE DROPDOWN MENU
+            ) for role_name, price in ROLE_SHOP.items() if discord.utils.get(guild.roles, name=role_name)
+        ]
+
+        super().__init__(
+            placeholder="Select a role to purchase...",
+            min_values=1,
+            max_values=1,
+            options=options
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        selected_role = self.values[0]
+        role_price = ROLE_SHOP[selected_role]
+
+        embed = discord.Embed(
+            title=f"{selected_role} - 🍋 {role_price} lemons",
+            description=f"Would you like to buy the **{selected_role}** role?",
+            color=0xf2ed58
+        )
+        embed.set_footer(text="Make sure you have enough lemons!")
+            # MAKES SURE THAT YOU HAVE ENOUGH LEMONS BEFORE PURCHASING
+
+        view = ConfirmRoleBuyView(selected_role, role_price)
+            # BUTTON GENERATION
+        embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+        embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | shop")
+        await interaction.response.edit_message(embed=embed, view=view)
+
+class ConfirmRoleBuyView(discord.ui.View):
+    def __init__(self, role_name, role_price):
+        super().__init__(timeout=60)
+        self.role_name = role_name
+        self.role_price = role_price
+
+        # BUTTONS
+        self.add_item(BuyRoleButton(role_name, role_price))
+        self.add_item(CancelButton())
+
+class BuyRoleButton(discord.ui.Button):
+    def __init__(self, role_name, role_price):
+        super().__init__(label="Buy", style=discord.ButtonStyle.green)
+        self.role_name = role_name
+        self.role_price = role_price
+
+    async def callback(self, interaction: discord.Interaction):
+        user_id = str(interaction.user.id)
+        guild = interaction.guild
+        member = interaction.user
+        role = discord.utils.get(guild.roles, name=self.role_name)
+
+        if role is None:
+            embed = discord.Embed(
+                title="Role Not Found",
+                description=f"The role **{self.role_name}** does not exist in this server.",
+                color=0xf25858
+            )
+        elif balances[user_id]["balance"] >= self.role_price:
+            # TAKE AWAY LEMONS, AND ASSIGNS THE ROLE.
+            balances[user_id]["balance"] -= self.role_price
+            save_balances()
+
+            await member.add_roles(role)
+
+            embed = discord.Embed(
+                title="Role Purchased!",
+                description=f"You successfully bought the **{self.role_name}** role for 🍋 {self.role_price} lemons.\nYour new balance: 🍋 {balances[user_id]['balance']}",
+                color=0xf2ed58
+            )
+        else:
+            # NI MEIYOU LEMONS
+            embed = discord.Embed(
+                title="Not Enough Lemons!",
+                description=f"You need 🍋 {self.role_price - balances[user_id]['balance']} more lemons to buy the **{self.role_name}** role.",
+                color=0xf25858
+            )
+        embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+        embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | shop")
+        await interaction.response.edit_message(embed=embed, view=None)
+
+class CancelButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Cancel", style=discord.ButtonStyle.red)
+
+    async def callback(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="Purchase Canceled",
+            description="You decided not to buy a role. Come back anytime!",
+            color=0xf2ed58
+        )
+        embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+        embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | shop")
+        await interaction.response.edit_message(embed=embed, view=None)
+
+@bot.tree.command(name="shop", description="Browse the role shop!")
+async def shop(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="Role Shop",
+        description="Select a role from the menu below to view details or make a purchase.",
+        color=0xf2ed58
+    )
+    embed.set_footer(text="Use /balance to check your current lemon balance.")
+
+    view = RoleShopMenu(interaction.guild)
+    embed.set_author(name=interaction.user.name, icon_url=interaction.user.display_avatar.url)
+    embed.set_footer(text=f"\n{interaction.user.name} | {datetime.now().strftime('%H:%M:%S')} | shop")
+    await interaction.response.send_message(embed=embed, view=view)
+
 
 ##########################################################
 
