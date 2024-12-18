@@ -49,4 +49,4 @@ Welcome, and thank you for contributing to our project! To ensure smooth collabo
 
 ---
 
-We appreciate your contributions! If you have questions, feel free to reach out to the maintainers.
+We appreciate your contributions! If you have questions, feel free to reach out to wndx2 on Discord.
